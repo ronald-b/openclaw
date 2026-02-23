@@ -62,8 +62,6 @@ USER node
 
 # Start gateway server with default config.
 # Binds to loopback (127.0.0.1) by default for security.
-#
-# For container platforms requiring external health checks:
-#   1. Set OPENCLAW_GATEWAY_TOKEN or OPENCLAW_GATEWAY_PASSWORD env var
-#   2. Override CMD: ["node","openclaw.mjs","gateway","--allow-unconfigured","--bind","lan"]
-CMD ["node", "openclaw.mjs", "gateway", "--allow-unconfigured"]
+# Set OPENCLAW_GATEWAY_BIND=lan (or override CMD) to expose on 0.0.0.0 for
+# reverse proxies / tunnels in front of the container.
+CMD ["sh", "-lc", "bind_mode=\"${OPENCLAW_GATEWAY_BIND:-loopback}\"; exec node openclaw.mjs gateway --allow-unconfigured --bind \"$bind_mode\""]
