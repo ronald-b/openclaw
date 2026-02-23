@@ -255,7 +255,9 @@ USER node
 # Built-in probe endpoints for container health checks:
 #   - GET /healthz (liveness) and GET /readyz (readiness)
 #   - aliases: /health and /ready
-# For external access from host/ingress, override bind to "lan" and set auth.
 HEALTHCHECK --interval=3m --timeout=10s --start-period=15s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:18789/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["node", "openclaw.mjs", "gateway", "--allow-unconfigured"]
+
+# Set OPENCLAW_GATEWAY_BIND=lan (or override CMD) to expose on 0.0.0.0 for
+# reverse proxies / tunnels in front of the container.
+CMD ["sh", "-lc", "bind_mode=\"${OPENCLAW_GATEWAY_BIND:-loopback}\"; exec node openclaw.mjs gateway --allow-unconfigured --bind \"$bind_mode\""]
