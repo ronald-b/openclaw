@@ -178,10 +178,12 @@ RUN install -d -m 0755 "$COREPACK_HOME" && \
 ARG OPENCLAW_DOCKER_APT_PACKAGES=""
 RUN --mount=type=cache,id=openclaw-bookworm-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=openclaw-bookworm-apt-lists,target=/var/lib/apt,sharing=locked \
+    apt_packages="gh"; \
     if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
-      apt-get update && \
-      DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $OPENCLAW_DOCKER_APT_PACKAGES; \
-    fi
+      apt_packages="$apt_packages $OPENCLAW_DOCKER_APT_PACKAGES"; \
+    fi; \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $apt_packages
 
 # Optionally install Chromium and Xvfb for browser automation.
 # Build with: docker build --build-arg OPENCLAW_INSTALL_BROWSER=1 ...
