@@ -178,7 +178,7 @@ RUN install -d -m 0755 "$COREPACK_HOME" && \
 ARG OPENCLAW_DOCKER_APT_PACKAGES=""
 RUN --mount=type=cache,id=openclaw-bookworm-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=openclaw-bookworm-apt-lists,target=/var/lib/apt,sharing=locked \
-    apt_packages="gh"; \
+    apt_packages="gh nano vim"; \
     if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
       apt_packages="$apt_packages $OPENCLAW_DOCKER_APT_PACKAGES"; \
     fi; \
