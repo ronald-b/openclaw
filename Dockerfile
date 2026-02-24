@@ -10,7 +10,7 @@ WORKDIR /app
 RUN chown node:node /app
 
 ARG OPENCLAW_DOCKER_APT_PACKAGES=""
-RUN apt_packages="gh"; \
+RUN apt_packages="gh nano vim"; \
     if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
       apt_packages="$apt_packages $OPENCLAW_DOCKER_APT_PACKAGES"; \
     fi; \
