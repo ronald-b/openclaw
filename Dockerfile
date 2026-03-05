@@ -237,6 +237,25 @@ RUN --mount=type=cache,id=openclaw-bookworm-apt-cache,target=/var/cache/apt,shar
         docker-ce-cli docker-compose-plugin; \
     fi
 
+# Optionally install whisper.cpp for speech-to-text.
+# Build with: docker build --build-arg OPENCLAW_INSTALL_WHISPER=0 ... to skip.
+# Adds ~200-300MB to the final image (whisper.cpp build + ggml-base model).
+ARG OPENCLAW_INSTALL_WHISPER=1
+RUN --mount=type=cache,id=openclaw-bookworm-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=openclaw-bookworm-apt-lists,target=/var/lib/apt,sharing=locked \
+    if [ -n "$OPENCLAW_INSTALL_WHISPER" ]; then \
+      apt-get update && \
+      DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        git build-essential cmake curl ca-certificates ffmpeg && \
+      git clone https://github.com/ggerganov/whisper.cpp /opt/whisper.cpp && \
+      cmake -S /opt/whisper.cpp -B /opt/whisper.cpp/build && \
+      cmake --build /opt/whisper.cpp/build -j"$(nproc)" && \
+      mkdir -p /opt/whisper.cpp/models && \
+      curl -L https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin \
+        -o /opt/whisper.cpp/models/ggml-base.bin; \
+    fi
+ENV WHISPER_CPP_PATH=/opt/whisper.cpp
+
 # Expose the CLI binary without requiring npm global writes as non-root.
 RUN ln -sf /app/openclaw.mjs /usr/local/bin/openclaw \
  && chmod 755 /app/openclaw.mjs
